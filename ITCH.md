@@ -4,6 +4,24 @@ Notes for publishing Nip Empire on itch.io. The upload is `nip-empire-itch.zip`,
 made by `python tools/make_itch_zip.py`. It holds `dist/index.html`, renamed to
 `index.html` at the root of the zip, which is what itch.io needs.
 
+## Automatic updates
+
+Every push to `main` that changes the game (src/, fonts/, build.py) runs the
+GitHub Action in `.github/workflows/itch.yml`. It builds the zip and uploads it to
+itch.io with butler, on GitHub's servers. You can also run it by hand from the
+repo's Actions tab ("Publish to itch.io" › Run workflow).
+
+One-time setup:
+1. On itch.io, create an API key: https://itch.io/user/settings/api-keys
+2. Add it to the repo as a secret named `BUTLER_API_KEY`
+   (`gh secret set BUTLER_API_KEY --repo LiquidPill/nip-empire`, then paste it).
+3. Set the repo variable `ITCH_TARGET` to `your-itch-username/nip-empire`.
+4. After the first automatic upload, open Edit game on itch.io, tick
+   "This file will be played in the browser" on the new `html` upload, and
+   delete any older manually uploaded zip. Later uploads replace it automatically.
+
+Butler can't post devlogs, so write those on itch.io yourself.
+
 ## Settings (Create new project)
 
 - **Title:** Nip Empire

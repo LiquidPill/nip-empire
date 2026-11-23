@@ -1,0 +1,40 @@
+# Builds the game and uploads it to itch.io whenever the game changes on main.
+# One-time setup (see ITCH.md): add the secret BUTLER_API_KEY and the variable ITCH_TARGET
+# (for example "yourname/nip-empire") in the repo's Settings › Secrets and variables › Actions.
+name: Publish to itch.io
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/**', 'fonts/**', 'build.py', 'tools/make_itch_zip.py']
+  workflow_dispatch:
+
+concurrency: itch-publish
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ vars.ITCH_TARGET != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build the game
+        run: |
+          pip install --quiet fonttools brotli
+          python tools/make_itch_zip.py
+
+      - name: Install butler
+        run: |
+          curl -sSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler
+          chmod +x butler/butler
+          ./butler/butler -V
+
+      - name: Upload to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: ./butler/butler push nip-empire-itch.zip "${{ vars.ITCH_TARGET }}:html" --userversion "$(date -u +%Y.%m.%d)-${GITHUB_SHA::7}"
