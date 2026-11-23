@@ -58,6 +58,14 @@ python -m http.server
 Open `http://localhost:8000/dist/test.html?debug=1`. With `?debug` in the
 address the game is silent. See `tools/make_test.py` for how to run the bot.
 
+## Saves and updates
+
+Saves live in the player's browser (and in save codes), and every update must
+keep loading older saves so nobody loses progress. If you change the game:
+never rename or reuse ids (furniture, products, research, quests, flags), only
+add new ones; and if the save format changes, bump `SAVE_SV` and add a step to
+`migrateSave()` in `src/game.html`.
+
 ## Licence
 
 The game (code, story text, pixel art and music, everything in this repository

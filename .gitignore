@@ -5,3 +5,5 @@ __pycache__/
 Thumbs.db
 dist/capture.html
 dist/gallery.html
+dist/old-test.html
+dist/save1.txt
