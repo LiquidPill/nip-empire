@@ -13,8 +13,8 @@ repo's Actions tab ("Publish to itch.io" › Run workflow).
 
 One-time setup:
 1. On itch.io, create an API key: https://itch.io/user/settings/api-keys
-2. Add it to the repo as a secret named `BUTLER_API_KEY`
-   (`gh secret set BUTLER_API_KEY --repo LiquidPill/nip-empire`, then paste it).
+2. Add it to the repo as a secret named `BUTLER_API_KEY`:
+   https://github.com/LiquidPill/nip-empire/settings/secrets/actions/new
 3. Set the repo variable `ITCH_TARGET` to `your-itch-username/nip-empire`.
 4. After the first automatic upload, open Edit game on itch.io, tick
    "This file will be played in the browser" on the new `html` upload, and
