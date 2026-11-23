@@ -40,6 +40,6 @@ made by `python tools/make_itch_zip.py`. It holds `dist/index.html`, renamed to
 >
 > Plays on phones and computers. Tap once to start the music.
 >
-> **Open source and public domain (CC0).** The full project is on GitHub: *(paste repo link)*.
+> **Open source and public domain (CC0).** The full project is on GitHub: https://github.com/LiquidPill/nip-empire
 > Copy it, mod it, remix it, sell it, no permission needed.
 > Font: DotGothic16 (SIL Open Font License).

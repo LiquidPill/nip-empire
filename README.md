@@ -6,8 +6,8 @@ build a catnip empire across eight buildings, from a shipping container on
 Pier 7 to a penthouse at the top of the city.
 
 **Play it:** download [`dist/index.html`](dist/index.html) and open it in any
-browser (phone or computer). It's a single file and works offline. It is also on
-itch.io: *(link coming soon)*.
+browser (phone or computer). It's a single file and works offline. An itch.io
+page is coming soon.
 
 ## Features
 
