@@ -506,7 +506,8 @@ const isWorking=f=>{const s=workerOf(f);return !!(s&&s.state==='work');};
 const maxStaff=()=>4+G.lot*3+(G.unlocked.cap?3:0)+(G.unlocked.cap2?3:0);
 const effOf=(s,stat)=>(0.5+s[stat]/40)*traitMult(s,stat);
 const lupOf=k=>(G.lup&&G.lup[k])||0;
-const priceOf=(p,eff)=>Math.round(p.price*(0.9+0.15*eff)*(1+0.06*(G.unlocked.strain||0))*(1+0.08*lupOf('recipe')));
+const brandMult=()=>1+.03*lupOf('brand');
+const priceOf=(p,eff)=>Math.round(p.price*(0.9+0.15*eff)*(1+0.06*(G.unlocked.strain||0))*(1+0.08*lupOf('recipe'))*brandMult());
 const costOf=t=>FAC[t].cost*LM();
 const isUnlocked=t=>FAC[t].loc!=null?FAC[t].loc===G.at:(!FAC[t].lock||!!G.unlocked[FAC[t].lock]);
 const locData=i=>i===G.at?G:G.locs[i];
@@ -1146,7 +1147,7 @@ function planServices(c){const sv=G.facs.filter(f=>FAC[f.type].cat==='service'&&
   for(let i=sv.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sv[i],sv[j]]=[sv[j],sv[i]];}
   let budget=c.money+(c.fun||0);for(const f of sv){if(plan.length>=2)break;const fee=feeOf(f);if(budget>=fee&&Math.random()<.75){plan.push(f.id);budget-=fee;}}
   c.plan=plan;nextService(c);}
-function feeOf(f){return Math.round(FAC[f.type].fee*LM()*(f.combos.length?1.5:1));}
+function feeOf(f){return Math.round(FAC[f.type].fee*LM()*(f.combos.length?1.5:1)*brandMult());}
 function nextService(c){while(c.plan.length){const f=facById(c.plan.shift());if(f&&hasSeat(f)){const a=accessTile(f);if(a){c.target=f.id;c.st='svc';setGoal(c,a);if(!c.stuck){if(UMAP)UMAP.set(f.id,usersOf(f)+1);return;}}}}leave(c);}
 function leave(c){c.st='out';c.target=null;setGoal(c,[Math.random()<.5?0:COLS-1,14]);if(c.stuck){c.path=[];c.stuck=false;c.fade=true;}}
 const SVCPOP={cushion:['z','#9fd8ff'],beanbag:['z','#9fd8ff'],fish:['♪','#9fd8ff'],arcade:['!','#ff5d7a'],claw:['!','#ffd447'],teatable:['♪','#ffd447'],yarn:['♥','#ff8fc8'],hottub:['♥','#9fd8ff']};
@@ -1289,6 +1290,7 @@ function advise(){
   if(G.cash>gc*40&&ok('cash')){const [lo,hi]=lotRange();let room=false;for(let r=TOP();r<=11&&!room;r++)for(let c=lo;c<=hi&&!room;c++)if(canPlace(grow,c,r))room=true;
     if(room&&G.facs.filter(f=>FAC[f.type].make).length<10)return say('cash','That cash ain\'t doing nothing in the drawer. Put it to work: more growers, more machines, more money.');
     if(!room&&G.lot<LOC().lots.length-1&&G.cash>=LOC().lotCost[G.lot+1]*LM())return say('cash','We\'re out of floor space, kid. Expand the place from Build and keep growing.');
+    if(G.cash>=brandCost()*3)return say('cash','Cash piling up? Put it into Brand Investment in Upgrade › Local. Every bit makes this place earn a little more, forever.');
     if(lupOf('mgr')<3&&G.cash>=mgrCost())return say('cash','Cash piling up and no room to build? Pay the manager a bonus in Upgrade › Local. This place will earn more while you\'re away.');}
   if(G.rp>=60&&ok('rp')){if(RESEARCH.some(r=>!(!r.repeat&&G.unlocked[r.id])&&!resLocked(r)&&!resMaxed(r)&&resCost(r)<=G.rp))return say('rp',`You\'ve got ${num(G.rp)} RP gathering dust. Spend it in Upgrade, kid. Brains are for using.`);
     if(LUPS.some(u=>lupOf(u.id)<u.max&&lupCost(u)<=G.rp))return say('rp',`You\'ve got ${num(G.rp)} RP and nothing left to research. Try Upgrade › Local: upgrades just for this place.`);}
@@ -1519,6 +1521,7 @@ function openUpgrade(){
     h+=`<div class="sec">Favors (RP)</div>`;
     for(const f of FAVORS){const c=favorCost(f);h+=`<button class="item" data-act="buyFavor" data-arg="${f.id}" ${G.rp<c||(f.ok&&!f.ok())?'disabled':''}><div class="ic" style="background:#8a5ad8">${f.ic}</div><div><b>${f.name}</b><span>${f.desc}</span></div><div class="pr">${c} RP</div></button>`;}
     {const n=lupOf('mgr'),c=mgrCost(),mx=n>=3;h+=`<div class="sec">Management (cash)</div><button class="item" data-act="buyMgr" ${mx||G.cash<c?'disabled':''}><div class="ic" style="background:#e8a020">$</div><div><b>Manager Bonus${n?' Lv'+n:''}</b><span>${mx?'Maxed out here.':'Pay the manager here to keep things humming: +10% income from this place while you are away (up to 3 times).'}</span></div><div class="pr">${mx?'✓':fmt(c)}</div></button>`;}
+    {const n=lupOf('brand'),c=brandCost();h+=`<button class="item" data-act="buyBrand" ${G.cash<c?'disabled':''}><div class="ic" style="background:#e84a8a">▲</div><div><b>Brand Investment${n?' Lv'+n:''}</b><span>+3% on every sale and service here, forever. Buy it as many times as you like.${n?` Now +${n*3}%.`:''}</span></div><div class="pr">${fmt(c)}</div></button>`;}
   } else {
     h+=`<div class="note">Promos raise rep at ${LOC().name} and bring a rush of customers, but loud ads draw a little heat.</div>`;
     for(const p of PROMOS){const lock=p.need&&G.fame<p.need,c=p.cost*LM(),fm=Math.round(p.fame*(G.unlocked.hype?1.5:1));h+=`<button class="item" data-act="promoBuy" data-arg="${p.id}" ${lock||G.cash<c?'disabled':''}><div class="ic" style="background:#e84a8a">${{flyer:'▤',graffiti:'✎',radio:'≋',tv:'▣'}[p.id]}</div><div><b>${p.name}</b><span>${p.desc}</span></div><div class="pr">${fmt(c)}<small>+${num(fm)} rep</small></div></button>`;}
@@ -1612,9 +1615,15 @@ function deserialize(o){
   G.locs=G.locs.map((l,i)=>{if(!l)return l;const n=Object.assign(newLocState(),l);n.facs=[];const L0=LOCS[i]||LOCS[0],lot=L0.lots[Math.min(n.lot||0,L0.lots.length-1)];n.lot=Math.min(n.lot||0,L0.lots.length-1);n.storage=n.storage||{};
     for(const f of (l.facs||[])){if(!FAC[f.type])continue;const w=FAC[f.type].w;if(f.c>=lot[0]&&f.c+w-1<=lot[1]&&f.r>=L0.top&&f.r<=12)n.facs.push({...mkFac(f.type,f.c,f.r),id:f.id,t:f.t||0});else n.storage[f.type]=(n.storage[f.type]||0)+1;}for(const p of PRODUCTS)if(n.stock[p.id]==null)n.stock[p.id]=0;return n;});
   G.locMax=Math.min(G.locMax||0,LOCS.length-1);G.ch=Math.min(G.ch||0,CHAPTERS.length);G.at=Math.min(G.at||0,G.locMax);
+  /* building-only furniture found in the wrong building goes back to its home building's Storage */
+  let moved=0;const homeOf=t=>FAC[t]&&FAC[t].loc!=null?FAC[t].loc:null;
+  G.locs.forEach((n,i)=>{if(!n)return;const keep=[];for(const f of n.facs){const h=homeOf(f.type);if(h!=null&&h!==i&&G.locs[h]){const hs=G.locs[h].storage=G.locs[h].storage||{};hs[f.type]=(hs[f.type]||0)+1;moved++;}else keep.push(f);}n.facs=keep;
+    for(const t of Object.keys(n.storage||{})){const h=homeOf(t);if(h!=null&&h!==i&&G.locs[h]){const hs=G.locs[h].storage=G.locs[h].storage||{};hs[t]=(hs[t]||0)+n.storage[t];moved+=n.storage[t];delete n.storage[t];}}});
+  if(moved)G.flags.relocNote=moved;
   const at=G.at||0;for(const k of LF)G[k]=G.locs[at][k];
   setStage(at);G.staff.forEach(initStaffRT);G.place=null;G.arrange=false;G.over=false;
   rebuild(true);
+  if(G.flags.relocNote){const m=G.flags.relocNote;delete G.flags.relocNote;addLog(`Moved ${m} building-only item${m>1?'s':''} back to ${m>1?'their':'its'} home building\'s Storage.`);setTimeout(()=>banner(`${m} item${m>1?'s were':' was'} in the wrong building and went back to ${m>1?'their':'its'} home Storage.`,'good',4000),800);}
 }
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){return false;}}
@@ -1683,6 +1692,7 @@ function act(a,arg,el){
     case 'utab':upTab=arg;openUpgrade();break;
     case 'buyLup':{const u=LUPS.find(x=>x.id===arg),n=lupOf(arg),c=lupCost(u);if(!u||n>=u.max||G.rp<c)return;G.rp-=c;if(!G.lup)G.lup={};G.lup[arg]=n+1;sfx('level');banner(`${u.name} Lv${n+1} at ${LOC().name}!`,'good');addLog(`Upgraded ${u.name} at ${LOC().name}.`);openUpgrade();break;}
     case 'buyFavor':{const f=FAVORS.find(x=>x.id===arg),c=favorCost(f);if(!f||G.rp<c||(f.ok&&!f.ok()))return;G.rp-=c;G.favUses=G.favUses||{};G.favUses[arg]=(G.favUses[arg]||0)+1;f.run();sfx('good');openUpgrade();break;}
+    case 'buyBrand':{const n=lupOf('brand'),c=brandCost();if(G.cash<c)return;G.cash-=c;L().build+=c;if(!G.lup)G.lup={};G.lup.brand=n+1;sfx('level');banner(`Brand Investment Lv${n+1}: +${(n+1)*3}% revenue at ${LOC().name}!`,'good');openUpgrade();break;}
     case 'buyMgr':{const n=lupOf('mgr'),c=mgrCost();if(n>=3||G.cash<c)return;G.cash-=c;L().build+=c;if(!G.lup)G.lup={};G.lup.mgr=n+1;sfx('level');banner(`Manager Bonus Lv${n+1} at ${LOC().name}!`,'good');addLog(`Paid a manager bonus at ${LOC().name}.`);openUpgrade();break;}
     case 'map':if(G.place||G.arrange)return;openMap();break;
     case 'travel':closeWin();travel(+arg);break;
@@ -1697,7 +1707,7 @@ function act(a,arg,el){
     case 'placeAll':{const [p,l]=placeAll();closeWin();banner(`Placed ${p} item${p===1?'':'s'}${l?`, ${l} didn't fit`:''}.`);sfx('build');break;}
     case 'placeCancel':{const p=G.place;if(p&&p.mode==='move'){p.fac.c=p.from[0];p.fac.r=p.from[1];G.facs.push(p.fac);rebuild(true);sfx('drop');}G.place=null;updPlacebar();break;}
     case 'storeHeld':{const p=G.place;G.storage[p.type]=(G.storage[p.type]||0)+1;G.place=null;rebuild(true);banner(FAC[p.type].name+' moved to Storage.');updPlacebar();hint('storage');break;}
-    case 'placeOk':{const p=G.place;if(!p||!p.ok){sfx('error');return;}const d=FAC[p.type],c=costOf(p.type);
+    case 'placeOk':{const p=G.place;if(!p||!p.ok){sfx('error');return;}if(FAC[p.type].loc!=null&&FAC[p.type].loc!==G.at){sfx('error');G.place=null;updPlacebar();return;}const d=FAC[p.type],c=costOf(p.type);
       if(p.mode==='new'){if(G.cash<c){sfx('error');return;}G.cash-=c;L().build+=c;G.facs.push(mkFac(p.type,p.c,p.r));pop(p.c*16+d.w*8,p.r*16-6,'-'+sfmt(c),'#ff9aa8');sfx('build');}
       else if(p.mode==='storage'){G.storage[p.type]--;if(!G.storage[p.type])delete G.storage[p.type];G.facs.push(mkFac(p.type,p.c,p.r));sfx('build');}
       else{p.fac.c=p.c;p.fac.r=p.r;p.fac.q=[];G.facs.push(p.fac);sfx('drop');}
@@ -2073,6 +2083,7 @@ const LUPS=[{id:'recipe',name:'House Recipe',ic:'★',max:5,desc:'Goods made her
   {id:'tune',name:'Tuned Machines',ic:'⚙',max:5,desc:'Machines here work 8% faster per level.'},
   {id:'quiet',name:'Quiet Operation',ic:'☾',max:5,desc:'Sales here make 8% less heat per level.'}];
 const lupCost=u=>Math.round((60+G.at*45)*Math.pow(1.6,lupOf(u.id)));
+const brandCost=()=>Math.round(2000*LM()*Math.pow(1.25,lupOf('brand')));
 const mgrCost=()=>Math.round(5000*LM()*Math.pow(2.5,lupOf('mgr')));
 const FAVORS=[
   {id:'rex',name:'Look the Other Way',ic:'✋',desc:'Rex gets a fruit basket. Heat here drops to zero.',base:25,ok:()=>G.heat>5&&!raid,run:()=>{G.heat=0;banner('Rex is suddenly very busy elsewhere. Heat cleared!','good',2800);}},
