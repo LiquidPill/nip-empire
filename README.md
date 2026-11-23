@@ -1,5 +1,7 @@
 # Nip Empire
 
+![Nip Empire](media/cover.png)
+
 A pocket-sized business sim about upright, pants-wearing cats and the city's
 hottest product: catnip. Start with two flowerpots in Old Whiskers' garage and
 build a catnip empire across eight buildings, from a shipping container on
