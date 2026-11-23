@@ -19,6 +19,9 @@ page is coming soon.
   each have a favorite
 - Every building has its own production twist (night-only moon planters, tidal
   kelp nets, mixed recipes) plus its own unique decor, service and combo
+- Plenty to spend on: per-building upgrades, Brand Investment, limited-edition
+  products, combo mastery, crew perks, lawyers, charity, Madame Mew's Boutique,
+  staff parties, VIP nights, endorsements, contracts and New Empire+
 - Hire and train crew with traits and personal requests, and keep the Dog Squad
   off your back with guards (and bluffs)
 - Combos, side quests, regular customers with their own stories, visitors,
