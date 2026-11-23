@@ -13,14 +13,23 @@ made by `python tools/make_itch_zip.py`. It holds `dist/index.html`, renamed to
 - **Kind of project:** HTML
 - **Upload:** `nip-empire-itch.zip`, then tick "This file will be played in the browser"
 - **Embed options:**
-  - Viewport: 480 × 854 (portrait), or "Click to launch in fullscreen" for phones
+  - Embed in page, viewport 480 × 854 (portrait; the game is laid out for a phone screen)
   - Tick "Mobile friendly", orientation Portrait
   - Tick "Fullscreen button"
+  - Leave "Automatically start on page load" off (the game starts on a click anyway, and sound needs a tap)
+  - Scrollbars off; SharedArrayBuffer support not needed
+- **Release status:** Released
+- **Pricing:** "No payments", or "$0 or donate" if you'd like tips
 - **Genre:** Simulation
-- **Tags:** tycoon, management, cats, pixel-art, business, story-rich, singleplayer, cute
-- **Pricing:** $0 or donate (or "No payments")
-- **Community:** comments, if you want feedback
+- **Tags:** tycoon, management, cats, pixel-art, business, story-rich, singleplayer, cute, open-source
+- **AI disclosure:** Yes. Tick Graphics, Sound, Text & Dialog and Code (all made with AI assistance)
+- **App store links / Source code:** add the GitHub repo, https://github.com/LiquidPill/nip-empire
+- **Custom noun:** leave as "game"
+- **Community:** Comments
 - **Visibility:** Draft while you check it, then Public
+
+Saves are kept in the player's browser and survive game updates. Players can back
+up or move a save with Menu › Transfer with a save code.
 
 ## Description (paste into the page)
 
@@ -39,6 +48,9 @@ made by `python tools/make_itch_zip.py`. It holds `dist/index.html`, renamed to
 > - Saves in your browser, with save codes to move between devices
 >
 > Plays on phones and computers. Tap once to start the music.
+>
+> **Made with AI assistance.** Code, art, sound and writing were all created with
+> AI help, and it's fully open source, so take it apart and see how it works.
 >
 > **Open source and public domain (CC0).** The full project is on GitHub: https://github.com/LiquidPill/nip-empire
 > Copy it, mod it, remix it, sell it, no permission needed.
