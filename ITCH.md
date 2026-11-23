@@ -41,7 +41,7 @@ up or move a save with Menu › Transfer with a save code.
 > container, a motel room, a houseboat, a moving truck, an observatory, an old
 > cinema and finally the penthouse at the top of the city.
 >
-> - 8 chapters plus a post-game chapter, each with its own building, products and rival
+> - 8 chapters plus a post-game chapter, each with its own building, products, rival, production twist and unique furniture
 > - Hire crew with quirky traits, train them, and keep them loyal
 > - Keep the heat down or Captain Rex and the Dog Squad come sniffing
 > - Find combos, help regular customers, make choices, win showdowns, and hunt for hidden golden mice

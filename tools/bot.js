@@ -22,6 +22,7 @@ const B=window.B={N,chMonths:[],monthsInCh:0,
     if(G.cash<B.cost(t)*1.5)break;const smart=B.combo&&(t===l.mach[2]||t===l.mach[0]||t===l.mach[1]);const ok=(t==='sun'||t==='tower'||smart)?(B.comboBuild(t)||B.build(t)):B.build(t);if(ok)i++;else break;}
   if(B.combo&&G.cash>B.cost('sun')*4){for(const t of ['sun','bonsai','tower','punchbag','candyjar','lavalamp','fish'])if(!N.FAC[t].lock||G.unlocked[N.FAC[t].lock]){if(Math.random()<.5&&B.comboBuild(t))break;}}
   {const chd=N.CHAPTERS[G.ch];const co=chd&&chd.loc===G.at&&chd.obj.find(o=>o.t==='combos');if(co&&!N.objDone(co,G.at))for(const t of ['cushion','fish','lavalamp','aquarium','neonsign','arcade','claw','velvet','punchbag','tower','candyjar','yarn','beanbag','teatable','sun','hottub','trophy'])if((!N.FAC[t].lock||G.unlocked[N.FAC[t].lock])&&G.cash>B.cost(t)*2)B.comboBuild(t);}
+  {const loc=Object.keys(N.FAC).filter(t=>N.FAC[t].loc===G.at&&(N.FAC[t].cat==='decor'||N.FAC[t].cat==='service'));for(const t of loc){const n=G.facs.filter(f=>f.type===t).length;if(n<2&&G.cash>B.cost(t)*3){if(N.FAC[t].cat==='decor')B.comboBuild(t)||B.build(t);else B.build(t);}}}
   B.pi[G.at]=i;
   if(G.cash>B.cost('counter')*20&&Math.random()<.25)N.act('promoBuy','radio');
   B.hide();},

@@ -17,6 +17,8 @@ page is coming soon.
   post-game chapter
 - Grow, process and refine catnip, then sell it to 24 kinds of customers who
   each have a favorite
+- Every building has its own production twist (night-only moon planters, tidal
+  kelp nets, mixed recipes) plus its own unique decor, service and combo
 - Hire and train crew with traits and personal requests, and keep the Dog Squad
   off your back with guards (and bluffs)
 - Combos, side quests, regular customers with their own stories, visitors,
