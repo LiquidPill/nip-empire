@@ -1075,12 +1075,12 @@ function renderInner(){
       let pose=null;const pt=vt+(c.id%7)*.37;
       if(it.staff&&c.state==='work'){const f=facById(c.job);if(f){const d=FAC[f.type];
         if(f.type==='guard'){const wx=f.c*16+4,wy=f.r*16-2;ctx.save();ctx.beginPath();ctx.rect(wx,wy,8,6);ctx.clip();R(wx,wy,8,6,'#5a7a9a');
-          drawCat(f.c*16+8,f.r*16+13,c.lk,0,['l','d','r','d'][Math.floor(vt*.6+c.id)%4],false,'salute',pt);ctx.restore();R(wx,wy,8,1,'rgba(216,240,255,.7)');R(wx+6,wy+1,1,2,'rgba(216,240,255,.5)');ctx.globalAlpha=1;continue;}
+          drawCat(f.c*16+8,f.r*16+13,staffLook(c),0,['l','d','r','d'][Math.floor(vt*.6+c.id)%4],false,'salute',pt);ctx.restore();R(wx,wy,8,1,'rgba(216,240,255,.7)');R(wx+6,wy+1,1,2,'rgba(216,240,255,.5)');ctx.globalAlpha=1;continue;}
         pose=f.type==='counter'?(f.q.length?'serve':null):STAFFPOSE(d);}}
       else if(c.st==='using'){const f=facById(c.target);if(f)pose=CUSTPOSE[f.type]||null;}
       if(it.seat){const f=it.seat,w=FAC[f.type].w,sx=f.c*16+(w===2?8+(c.seatI%2)*16:8),sy=f.r*16+(f.type==='hottub'?12:f.type==='teatable'?10:11);drawCat(sx,sy,c.lk,0,'d',false,pose,pt);
         if(f.type==='hottub'){R(sx-6,f.r*16+9,12,3,'rgba(90,208,224,.85)');R(sx-6,f.r*16+9,12,1,'#a0f0ff');}}
-      else drawCat(c.x+ox,c.y,c.lk,c.anim,c.dir,c.walking,pose,pt);if(c.reg&&!it.staff)star(Math.round(c.x+ox),Math.round(c.y)-22-(Math.floor(vt*2)%2),'#ffd447',1);ctx.globalAlpha=1;}
+      else drawCat(c.x+ox,c.y,it.staff?staffLook(c):c.lk,c.anim,c.dir,c.walking,pose,pt);if(c.reg&&!it.staff)star(Math.round(c.x+ox),Math.round(c.y)-22-(Math.floor(vt*2)%2),'#ffd447',1);ctx.globalAlpha=1;}
   }
   if(editing){
     ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=.5;const [lo,hi]=lotRange(),top=TOP();
@@ -1372,7 +1372,7 @@ function openWin(title,body,keepScroll,tabsHtml){if(win.hidden)sfx('open');const
   const on=win.querySelector('.tab.on'),tb=win.querySelector('.tabs');if(on&&tb){const l=on.offsetLeft-tb.offsetLeft,r=l+on.offsetWidth;if(r>tb.scrollLeft+tb.clientWidth)tb.scrollLeft=r-tb.clientWidth+8;else if(l<tb.scrollLeft)tb.scrollLeft=Math.max(0,l-8);}
   win.querySelectorAll('canvas[data-fac]').forEach(c=>drawFacPreview(c,c.dataset.fac));
   win.querySelectorAll('canvas[data-loc]').forEach(c=>drawLocPreview(c,+c.dataset.loc));
-  win.querySelectorAll('canvas[data-staff]').forEach(c=>{const s=G.staff.concat(G.cands).find(s=>s.id===+c.dataset.staff);if(s)drawCatOn(c,s.lk,3);});
+  win.querySelectorAll('canvas[data-staff]').forEach(c=>{const s=G.staff.concat(G.cands).find(s=>s.id===+c.dataset.staff);if(s)drawCatOn(c,G.staff.includes(s)?staffLook(s):s.lk,3);});
   win.querySelectorAll('canvas[data-char]').forEach(c=>drawCatOn(c,CHARS[c.dataset.char].lk,3));
   win.querySelectorAll('canvas[data-cust]').forEach(c=>{const k=CUST.find(x=>x.id===c.dataset.cust);drawCatOn(c,{fur:'#f2a03d',fur2:'#c46a1d',shirt:'#4a8ae8',acc:k.acc,hat:'#e84a5a'},3);});
   win.dataset.view=title;}
@@ -1504,7 +1504,7 @@ function statBars(s){return STATS.map(([k,l,c])=>`<div class="stat"><span>${l}</
 function jobName(s){if(s.job==null)return 'Idle';const f=facById(s.job);return f?FAC[f.type].name:'Idle';}
 const trainCost=s=>(60+s.lvl*60)*LM();
 function openStaff(){
-  let h=`<button class="btn wide" data-act="hireOpen" ${G.staff.length>=maxStaff()?'disabled':''}>Hire crew here (${G.staff.length}/${maxStaff()})</button>`;
+  let h=`<button class="btn pink wide" data-act="wardrobe">Wardrobe: uniforms</button><button class="btn wide" data-act="hireOpen" ${G.staff.length>=maxStaff()?'disabled':''}>Hire crew here (${G.staff.length}/${maxStaff()})</button>`;
   if(!G.staff.length)h+='<div class="note">No crew. Nothing gets sold without someone at the counter.</div>';
   for(const s of G.staff){h+=`<div class="card"><canvas class="pt" data-staff="${s.id}" width="42" height="66"></canvas><div><div class="cn"><span>${s.name}</span><span class="lv">Lv${s.lvl}</span><span class="job">${jobName(s)}</span></div><div class="note" style="margin:0">${s.trait&&TRAITS[s.trait]?`<b style="color:var(--gold)">${TRAITS[s.trait][0]}</b>: ${TRAITS[s.trait][1]}`:''}${(s.loyal||0)>=3?' · <span style="color:var(--pink)">♥ Loyal</span>':s.loyal?' · '+'♥'.repeat(s.loyal):''}</div>${statBars(s)}
     <div class="cbtns"><button class="btn sm" data-act="train" data-arg="${s.id}" ${G.cash<trainCost(s)?'disabled':''}>Train ${sfmt(trainCost(s))}</button><button class="btn sm red" data-act="fire" data-arg="${s.id}">Fire</button><span class="sal">${sfmt(s.salary)}/mo</span></div>${(s.perks&&s.perks.length)?`<div class="note" style="margin:2px 0 0">Perks: ${s.perks.map(k=>PERKS[k][0]).join(', ')}</div>`:''}${perkSlots(s)>(s.perks||[]).length?`<button class="btn sm blue" data-act="perkOpen" data-arg="${s.id}" style="margin-top:3px">Teach a perk · ${perkCost(s)} RP</button>`:''}</div></div>`;}
@@ -1734,6 +1734,9 @@ function act(a,arg,el){
     case 'bqBuy':{const c=bqPrice();if(G.cash<c||!FAC[arg]||G.unlocked['bq_'+arg])return;G.cash-=c;L().build+=c;G.unlocked['bq_'+arg]=true;sfx('quest');banner(`${FAC[arg].name} unlocked! Find it in Build.`,'good',3000);pingBtn('build');openUpgrade();break;}
     case 'cmUp':{const c=cmCost(arg);if(cmLvl(arg)>=5||G.rp<c||!G.combos.includes(arg))return;G.rp-=c;G.cm=G.cm||{};G.cm[arg]=cmLvl(arg)+1;sfx('level');banner(`Combo mastery Lv${G.cm[arg]}!`,'good');openJournal('combos');break;}
     case 'perkOpen':openPerks(+arg);break;
+    case 'wardrobe':openWardrobe();break;
+    case 'uniBuy':{const u=UBY[arg];if(!u||uniOwned(arg))return;const c=uniCost(u);if(G.cash<c)return;G.cash-=c;L().build+=c;G.unlocked['u_'+arg]=true;G.uni=G.uni||{};G.uni[u[1]]=arg;sfx('quest');banner(`${u[2]} bought and equipped!`,'good');openWardrobe();break;}
+    case 'uniWear':{const u=UBY[arg];if(!u||!uniOwned(arg))return;G.uni=G.uni||{};G.uni[u[1]]=arg;sfx('blip');banner(`${JOBS.find(j=>j[0]===u[1])[1]} now wear the ${u[2]}.`,'good');openWardrobe();break;}
     case 'perkPick':{const [sid,k]=arg.split(':');const st=G.staff.find(x=>x.id===+sid);if(!st||!PERKS[k])return;st.perks=st.perks||[];const c=perkCost(st);if(st.perks.includes(k)||st.perks.length>=perkSlots(st)||G.rp<c)return;G.rp-=c;st.perks.push(k);sfx('level');banner(`${st.name} learned ${PERKS[k][0]}!`,'good');openStaff();break;}
     case 'intel':{const o=sdObjs().find(x=>x.k===arg);if(!o)return;const n=G.flags['intel'+o.k]||0,c=intelCost(o);if(n>=3||G.rp<c||G.sd)return;G.rp-=c;G.flags['intel'+o.k]=n+1;sfx('good');banner(`Intel bought: ${CHARS[o.who].name}'s target is ${(n+1)*10}% lower.`,'good');openJournal('story');break;}
     case 'ctrDel':ctrDeliver(+arg);openJournal('contracts');break;
@@ -1926,7 +1929,7 @@ const TRAITS={green:['Green Paw','Grows 20% faster'],chatty:['Chatterbox','Sells
   owl:['Night Owl','30% faster at night'],eager:['Eager Beaver','Levels up 50% faster'],napper:['Napper','10% slower, but 20% cheaper']};
 const TKEYS=Object.keys(TRAITS);
 function traitMult(s,stat){let m=1;switch(s.trait){case 'green':if(stat==='green')m=1.2;break;case 'chatty':if(stat==='hustle')m=1.2;break;case 'tough':if(stat==='muscle')m=1.2;break;case 'brainy':if(stat==='smarts')m=1.2;break;
-  case 'owl':{const ph=((G.wt||0)/WEEK);if(ph>.6&&ph<.95)m=1.3;break;}case 'napper':m=.9;break;}if((s.loyal||0)>=3)m*=1.1;if(hasPerk(s,'hands'))m*=1.15;if(stat==='green'&&hasPerk(s,'thumb'))m*=1.25;if(stat==='muscle'&&hasPerk(s,'eagle'))m*=1.25;if(G.partyT>0&&G.partyLoc===G.at)m*=1.25;return m;}
+  case 'owl':{const ph=((G.wt||0)/WEEK);if(ph>.6&&ph<.95)m=1.3;break;}case 'napper':m=.9;break;}if((s.loyal||0)>=3)m*=1.1;if(hasPerk(s,'hands'))m*=1.15;if(stat==='green'&&hasPerk(s,'thumb'))m*=1.25;if(stat==='muscle'&&hasPerk(s,'eagle'))m*=1.25;if(G.partyT>0&&G.partyLoc===G.at)m*=1.25;m*=uniMult(s,stat);return m;}
 function crewRequest(){if(!talkEl.hidden||raid||Math.random()>.3)return;const now=G.y*12+G.m;
   const c=G.staff.filter(s=>s.lvl>=3&&!(s.askM>now-6));if(!c.length)return;const s=pick(c);s.askM=now;
   const lk=s.lk;CHARS['crew']={name:s.name,lk,bg:'#d8f0c8,#5ab05a'};const k=pick(['raise','gear','trip','nap']);
@@ -2211,13 +2214,51 @@ function ctrDeliver(id){const c=(G.ctr||[]).find(x=>x.id===id);if(!c||c.loc!==G.
 
 /* ---- New Empire+: restart after the story with a permanent bonus ---- */
 const ngMult=()=>1+.25*(G.ngp||0);
-function ngPlus(){const keep={ngp:(G.ngp||0)+1,ach:G.ach,scrap:G.scrap,tot:G.tot,raids:G.raids,bluffs:G.bluffs,bq:Object.keys(G.unlocked).filter(k=>/^bq_|^statue$/.test(k)),cm:G.cm};
-  startGame(true);G.ngp=keep.ngp;G.ach=keep.ach;G.scrap=keep.scrap;G.tot=keep.tot;G.raids=keep.raids;G.bluffs=keep.bluffs;G.cm=keep.cm||{};for(const k of keep.bq)G.unlocked[k]=true;
+function ngPlus(){const keep={ngp:(G.ngp||0)+1,ach:G.ach,scrap:G.scrap,tot:G.tot,raids:G.raids,bluffs:G.bluffs,bq:Object.keys(G.unlocked).filter(k=>/^bq_|^statue$|^u_/.test(k)),uni:G.uni,cm:G.cm};
+  startGame(true);G.ngp=keep.ngp;G.ach=keep.ach;G.scrap=keep.scrap;G.tot=keep.tot;G.raids=keep.raids;G.bluffs=keep.bluffs;G.cm=keep.cm||{};G.uni=keep.uni||{};for(const k of keep.bq)G.unlocked[k]=true;
   addLog(`Started New Empire+ ${G.ngp}: +${G.ngp*25}% revenue, +${G.ngp*20}% RP.`);banner(`New Empire+ ${G.ngp}! Everything sells for ${G.ngp*25}% more.`,'good',4000);autosave();}
 ACH.push({id:'ngplus',name:'Do It Again',desc:'Start a New Empire+.',rp:30,ok:()=>(G.ngp||0)>=1},
   {id:'contracts10',name:'Reliable Supplier',desc:'Deliver 10 contracts.',rp:20,ok:()=>(G.tot.contracts||0)>=10},
   {id:'charity10',name:'Pillar of the Community',desc:'Donate to the city 10 times.',rp:20,ok:()=>(G.don||0)>=10});
 
+/* ---- uniforms: each job has an outfit; buy new ones in the Wardrobe and equip them per job ---- */
+const JOBS=[['sell','Sellers','at the counter'],['grow','Growers','tending plants'],['make','Machinists','running machines'],['guard','Guards','at Guard Posts']];
+/* [id, job, name, shirt, accessory, hat colour, tier (0 = starter), flavour] */
+const UNIFORMS=[
+  ['apron','sell','Green Apron','#3fae5a','band','',0,'The classic. Smells faintly of catnip.'],
+  ['vest','sell','Shop Vest','#c0263a','tie','',1,'Very professional. The tie is a clip-on.'],
+  ['diner','sell','Diner Cap','#f2c94c','trucker','',2,'"What can I get ya, hon?"'],
+  ['tux','sell','Deluxe Tuxedo','#1e1a26','tophat','',3,'For selling nip to the very finest cats.'],
+  ['garden','grow','Garden Kit','#3fae5a','band','',0,'Sturdy, muddy, reliable.'],
+  ['farmer','grow','Farmer Overalls','#5a6a8a','bucket','',1,'Comes with a piece of straw to chew.'],
+  ['flower','grow','Flower Child','#ff8fc8','flowers','',2,'Plants grow better when you sing to them.'],
+  ['golden','grow','Deluxe Gold Leaf','#d4a020','crown','',3,'Gold-thread gardening gloves included.'],
+  ['work','make','Work Shirt','#3fae5a','band','',0,'Plain, practical, mostly clean.'],
+  ['hardhat','make','Hard Hat','#e8853a','hardhat','',1,'Safety first. Then catnip.'],
+  ['labcoat','make','Lab Coat','#f4f4f8','goggles','',2,'Dr. Purrkins approves.'],
+  ['chef','make','Deluxe Chef','#ffffff','beret','',3,'Every batch is a masterpiece.'],
+  ['security','guard','Security Tee','#2a3a8a','cap','',0,'Says SECURITY on the back, in case anyone asks.'],
+  ['bandana','guard','Biker Bandana','#1e1a26','bandana','',1,'Looks tough. Is actually very nice.'],
+  ['shades','guard','Night Shades','#3a3a4a','shades','',2,'Can\'t see a thing. Looks incredible.'],
+  ['captain','guard','Deluxe Captain','#f4f4f8','captain','',3,'Even Captain Rex is jealous.'],
+];
+const UBY=Object.fromEntries(UNIFORMS.map(u=>[u[0],u]));
+UNIFORMS.forEach(u=>{CHARS['uni_'+u[0]]={name:u[2],lk:{fur:'#f2a03d',fur2:'#c46a1d',shirt:u[3],acc:u[4],hat:'#e84a5a'},bg:'#d8e8ff,#6a8ad8'};});
+const UBONUS=[0,.03,.06,.10];
+const uniOwned=id=>UBY[id]&&(UBY[id][6]===0||!!G.unlocked['u_'+id]);
+const uniCost=u=>Math.round([0,2000,6000,20000][u[6]]*LM()*(1+.4*UNIFORMS.filter(x=>x[6]&&G.unlocked['u_'+x[0]]).length));
+const jobOfFac=f=>{if(!f)return null;const c=FAC[f.type].cat;return c==='sell'?'sell':c==='grow'?'grow':c==='process'?'make':c==='security'?'guard':null;};
+const uniFor=job=>{const id=(G.uni&&G.uni[job])||UNIFORMS.find(u=>u[1]===job&&!u[6])[0];return UBY[id];};
+function staffLook(s){const job=s.job!=null?jobOfFac(facById(s.job)):null;if(!job)return s.lk;const u=uniFor(job);
+  if(!s._lk||s._lk.k!==u[0]){s._lk={k:u[0],fur:s.lk.fur,fur2:s.lk.fur2,shirt:u[3],acc:u[4],hat:'#e84a5a'};}return s._lk;}
+function uniMult(s,stat){const job=s.job!=null?jobOfFac(facById(s.job)):null;return job?1+UBONUS[uniFor(job)[6]]:1;}
+function openWardrobe(){let h=`<div class="note">Pick an outfit for each job. Everyone doing that job wears it, at every building, and fancier outfits help them work a little better.</div>`;
+  for(const [job,label,where] of JOBS){h+=`<div class="sec">${label} (${where})</div>`;
+    for(const u of UNIFORMS.filter(x=>x[1]===job)){const own=uniOwned(u[0]),on=uniFor(job)[0]===u[0],c=uniCost(u);
+      h+=`<div class="card"><canvas class="pt" data-char="uni_${u[0]}" width="42" height="66" style="background:linear-gradient(${CHARS['uni_'+u[0]].bg})"></canvas><div><div class="cn"><span>${u[2]}</span>${u[6]?`<span class="lv">+${Math.round(UBONUS[u[6]]*100)}%</span>`:''}</div><div class="note" style="margin:0">${u[7]}</div>
+        <div class="cbtns">${on?`<button class="btn sm pink" disabled>Wearing</button>`:own?`<button class="btn sm blue" data-act="uniWear" data-arg="${u[0]}">Equip</button>`:`<button class="btn sm" data-act="uniBuy" data-arg="${u[0]}" ${G.cash<c?'disabled':''}>Buy ${sfmt(c)}</button>`}</div></div></div>`;}}
+  h+=`<button class="btn blue wide" data-act="staff">Back to crew</button>`;openWin('Wardrobe',h);}
+ACH.push({id:'fashion',name:'Fashionista',desc:'Own every uniform.',rp:25,ok:()=>UNIFORMS.every(u=>uniOwned(u[0]))});
 /* ================= boot ================= */
 function refreshTitle(){$('contBtn').hidden=!latestSlot();const nb=document.querySelector('[data-act="newGame"]');nb.textContent='New Game';delete nb.dataset.sure;}
 function startGame(fresh){

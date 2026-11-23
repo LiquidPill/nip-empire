@@ -22,6 +22,7 @@ page is coming soon.
 - Plenty to spend on: per-building upgrades, Brand Investment, limited-edition
   products, combo mastery, crew perks, lawyers, charity, Madame Mew's Boutique,
   staff parties, VIP nights, endorsements, contracts and New Empire+
+- A wardrobe of job uniforms to buy and equip, from shop vests to a deluxe tuxedo
 - Hire and train crew with traits and personal requests, and keep the Dog Squad
   off your back with guards (and bluffs)
 - Combos, side quests, regular customers with their own stories, visitors,
